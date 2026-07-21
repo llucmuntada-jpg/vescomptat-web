@@ -370,13 +370,14 @@ footer { border-top:0.5px solid rgba(184,151,90,0.1); padding:32px 48px; display
   <h2 class="sec-title" data-es="<em>Contacta</em> con nosotros" data-en="<em>Get in</em> touch"><em>Get in</em> touch</h2>
   <div class="contacto-grid">
     <form onsubmit="sendForm(event)">
-      <div class="form-group"><label class="form-label" data-es="Nombre completo" data-en="Full name">Full name</label><input class="form-input" type="text" required></div>
-      <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" required></div>
-      <div class="form-group"><label class="form-label" data-es="País de residencia" data-en="Country of residence">Country of residence</label><input class="form-input" type="text"></div>
-      <div class="form-group"><label class="form-label" data-es="Parcela de interés" data-en="Plot of interest">Plot of interest</label><select class="form-select" id="f-parcela"></select></div>
-      <div class="form-group"><label class="form-label" data-es="Mensaje" data-en="Message">Message</label><textarea class="form-textarea"></textarea></div>
+      <input type="hidden" name="_subject" value="Nuevo contacto — Vescomptat de Cabanyes">
+      <div class="form-group"><label class="form-label" data-es="Nombre completo" data-en="Full name">Full name</label><input class="form-input" type="text" name="name" required></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" name="email" required></div>
+      <div class="form-group"><label class="form-label" data-es="País de residencia" data-en="Country of residence">Country of residence</label><input class="form-input" type="text" name="country"></div>
+      <div class="form-group"><label class="form-label" data-es="Parcela de interés" data-en="Plot of interest">Plot of interest</label><select class="form-select" id="f-parcela" name="plot"></select></div>
+      <div class="form-group"><label class="form-label" data-es="Mensaje" data-en="Message">Message</label><textarea class="form-textarea" name="message"></textarea></div>
       <button type="submit" class="btn-p" data-es="Enviar mensaje" data-en="Send message">Send message</button>
-      <p id="f-ok" style="display:none;margin-top:12px;font-size:13px;color:#8fba8f;"></p>
+      <p id="f-ok" style="display:none;margin-top:12px;font-size:13px;"></p>
     </form>
     <div class="contact-info">
       <!-- EDITA: email, teléfono y WhatsApp aquí abajo -->
@@ -692,11 +693,34 @@ function renderSelect() {
 }
 function sendForm(e) {
   e.preventDefault();
+  const form = e.target;
   const ok = document.getElementById('f-ok');
-  ok.textContent = lang==='es'?'Mensaje enviado. Nos pondremos en contacto contigo pronto.':'Message sent. We will get back to you shortly.';
-  ok.style.display = 'block';
-  e.target.reset();
-  setTimeout(()=>{ok.style.display='none';},5000);
+  const submitBtn = form.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+
+  fetch('https://formspree.io/f/xzdnvgoj', {
+    method: 'POST',
+    body: new FormData(form),
+    headers: { 'Accept': 'application/json' }
+  }).then(function(response) {
+    submitBtn.disabled = false;
+    if (response.ok) {
+      ok.style.color = '#8fba8f';
+      ok.textContent = lang==='es' ? 'Mensaje enviado. Nos pondremos en contacto contigo pronto.' : 'Message sent. We will get back to you shortly.';
+      form.reset();
+    } else {
+      ok.style.color = '#d98a8a';
+      ok.textContent = lang==='es' ? 'No se ha podido enviar. Prueba de nuevo o escríbenos por email.' : 'Something went wrong. Please try again or email us directly.';
+    }
+    ok.style.display = 'block';
+    setTimeout(function(){ ok.style.display = 'none'; }, 6000);
+  }).catch(function() {
+    submitBtn.disabled = false;
+    ok.style.color = '#d98a8a';
+    ok.textContent = lang==='es' ? 'No se ha podido enviar. Prueba de nuevo o escríbenos por email.' : 'Something went wrong. Please try again or email us directly.';
+    ok.style.display = 'block';
+    setTimeout(function(){ ok.style.display = 'none'; }, 6000);
+  });
 }
 
 
