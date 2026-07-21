@@ -220,7 +220,6 @@ nav.scrolled { background:rgba(26,26,24,0.99); }
 footer { border-top:0.5px solid rgba(184,151,90,0.1); padding:32px 48px; display:flex; align-items:center; justify-content:space-between; font-size:12px; color:rgba(245,242,236,0.25); }
 
 @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
- 50%{transform:translateX(-50%) translateY(6px)} }
 
 @media(max-width:900px){
   nav{padding:16px 20px;} .nav-links{display:none;}
@@ -376,6 +375,11 @@ footer { border-top:0.5px solid rgba(184,151,90,0.1); padding:32px 48px; display
       <div class="form-group"><label class="form-label" data-es="País de residencia" data-en="Country of residence">Country of residence</label><input class="form-input" type="text" name="country"></div>
       <div class="form-group"><label class="form-label" data-es="Parcela de interés" data-en="Plot of interest">Plot of interest</label><select class="form-select" id="f-parcela" name="plot"></select></div>
       <div class="form-group"><label class="form-label" data-es="Mensaje" data-en="Message">Message</label><textarea class="form-textarea" name="message"></textarea></div>
+      <!-- TODO: enlazar "política de privacidad" a la página real en cuanto exista -->
+      <div class="form-group" style="flex-direction:row;align-items:flex-start;gap:8px;">
+        <input type="checkbox" id="f-consent" style="margin-top:3px;flex-shrink:0;">
+        <label for="f-consent" style="font-size:12px;line-height:1.5;color:rgba(245,242,236,0.5);" data-es="He leído y acepto la política de privacidad." data-en="I have read and accept the privacy policy.">I have read and accept the privacy policy.</label>
+      </div>
       <button type="submit" class="btn-p" data-es="Enviar mensaje" data-en="Send message">Send message</button>
       <p id="f-ok" style="display:none;margin-top:12px;font-size:13px;"></p>
     </form>
@@ -695,6 +699,14 @@ function sendForm(e) {
   e.preventDefault();
   const form = e.target;
   const ok = document.getElementById('f-ok');
+
+  if (!document.getElementById('f-consent').checked) {
+    ok.style.color = '#d98a8a';
+    ok.textContent = lang==='es' ? 'Debes aceptar la política de privacidad para enviar el formulario.' : 'You must accept the privacy policy to submit the form.';
+    ok.style.display = 'block';
+    return;
+  }
+
   const submitBtn = form.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
 
