@@ -13,6 +13,7 @@
 <!-- TODO: añadir og:image (necesita foto real hospedada, no base64), og:url y <link rel="canonical"> en cuanto haya dominio definitivo -->
 <title data-es="Vescomptat de Cabanyes — Terrenos exclusivos Costa Brava" data-en="Vescomptat de Cabanyes — Exclusive Plots, Costa Brava" data-de="Vescomptat de Cabanyes — Exklusive Grundstücke, Costa Brava" data-fr="Vescomptat de Cabanyes — Parcelles exclusives, Costa Brava" data-nl="Vescomptat de Cabanyes — Exclusieve percelen, Costa Brava">Vescomptat de Cabanyes — Exclusive Plots, Costa Brava</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet">
 <style>
 :root {
   --gold: #b8975a;
@@ -290,7 +291,7 @@ footer { border-top:0.5px solid rgba(184,151,90,0.1); padding:32px 48px; display
         <div class="zona-feature" data-es="Golf, puerto deportivo y comercios a 15 min" data-en="Golf, marina and shops within 15 min" data-de="Golf, Yachthafen und Geschäfte in 15 Min." data-fr="Golf, port de plaisance et commerces à 15 min" data-nl="Golf, jachthaven en winkels binnen 15 min">Golf, marina and shops within 15 min</div>
       </div>
     </div>
-    <div style="width:100%;height:320px;overflow:hidden;border-radius:4px;border:0.5px solid rgba(184,151,90,0.2);"><img src="images/zona/zona-palamos-marina.jpg" alt="Puerto deportivo de Palamós al atardecer, cerca de Calonge, Costa Brava" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;"></div>
+    <div id="zona-map" style="width:100%;height:320px;overflow:hidden;border-radius:4px;border:0.5px solid rgba(184,151,90,0.2);background:#12110f;"></div>
   </div>
   <div class="urb-divider">
     <div class="zona-grid">
@@ -750,7 +751,8 @@ function sendForm(e) {
 const HERO_IMGS = [
   'images/hero/hero-calella-terrace.jpg',
   'images/hero/hero-costa-brava-sunrise.jpg',
-  'images/hero/hero-sagaro-villas2.jpg'
+  'images/hero/hero-sagaro-villas2.jpg',
+  'images/zona/zona-palamos-marina.jpg'
 ];
 
 (function() {
@@ -806,6 +808,116 @@ renderGrid();
 renderSelect();
 </script>
 
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js"></script>
+<script>
+// =============================================
+// MAPA MAPBOX — vista Europa/Iberia -> vista satélite en perspectiva de Calonge
+// =============================================
+mapboxgl.accessToken = 'pk.eyJ1IjoibGx1Y211bnRhZGEiLCJhIjoiY21uZzV0ZnBpMDVtZTJwcjBkczh2Y3EyZiJ9.rxx5sL0AL5tWoVR8Xc9hpA';
+
+// Vista general de Calonge y la costa (Sant Antoni de Calonge)
+const CALONGE_AREA = [3.079, 41.848];
+// Centro de la urbanización: Carrer Miquel Martí i Pol, 1 (geocodificado con Mapbox)
+const URBANIZACION_COORDS = [3.058371, 41.848524];
+
+const zonaMap = new mapboxgl.Map({
+  container: 'zona-map',
+  style: 'mapbox://styles/mapbox/standard-satellite',
+  projection: 'globe',
+  zoom: 3.6,
+  center: [1, 42.5], // Península ibérica / sur de Europa, no vista desde el espacio
+  pitch: 0,
+  scrollZoom: false,
+  attributionControl: false,
+  antialias: true,
+  pixelRatio: Math.min(window.devicePixelRatio * 1.5, 3)
+});
+zonaMap.addControl(new mapboxgl.AttributionControl({ compact: true }));
+zonaMap.addControl(new mapboxgl.FullscreenControl());
+
+zonaMap.on('style.load', function() {
+  zonaMap.setConfigProperty('basemap', 'lightPreset', 'day');
+  zonaMap.setConfigProperty('basemap', 'theme', 'monochrome');
+  zonaMap.setConfigProperty('basemap', 'showRoadLabels', false);
+  try { zonaMap.setFog({}); } catch (e) {}
+  zonaMap.addSource('mapbox-dem', {
+    type: 'raster-dem',
+    url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+    tileSize: 512,
+    maxzoom: 14
+  });
+  zonaMap.setTerrain({ source: 'mapbox-dem', exaggeration: 1.3 });
+
+  // Precarga silenciosa: carga los tiles de Calonge en segundo plano (el mapa aún no es visible,
+  // está más abajo en la página) para que el vuelo desde la península no se vea borroso/vacío.
+  zonaMap.once('idle', function() {
+    zonaMap.jumpTo({ center: CALONGE_AREA, zoom: 12.3, pitch: 55, bearing: -12 });
+    zonaMap.once('idle', function() {
+      zonaMap.jumpTo({ center: [1, 42.5], zoom: 3.6, pitch: 0, bearing: 0 });
+      startZonaObserver();
+    });
+  });
+});
+
+function addZonaMarker(coords, label, color, dotSize) {
+  const el = document.createElement('div');
+  el.style.cssText = 'display:flex;align-items:center;gap:7px;cursor:pointer;';
+
+  const dot = document.createElement('div');
+  const size = dotSize || 11;
+  dot.style.cssText = 'width:' + size + 'px;height:' + size + 'px;border-radius:50%;background:' + color + ';border:2px solid #fff;box-shadow:0 0 0 4px ' + color + '59;flex:none;';
+
+  const labelEl = document.createElement('div');
+  labelEl.textContent = label;
+  labelEl.style.cssText = 'background:rgba(20,19,17,0.88);color:#f3ede1;padding:5px 11px;border-radius:3px;font-family:\'DM Sans\',sans-serif;font-size:12px;font-weight:500;letter-spacing:0.3px;white-space:nowrap;box-shadow:0 1px 5px rgba(0,0,0,0.35);opacity:0;transform:translateX(-4px);transition:opacity 0.18s ease, transform 0.18s ease;pointer-events:none;';
+
+  el.appendChild(dot);
+  el.appendChild(labelEl);
+  el.addEventListener('mouseenter', function() {
+    labelEl.style.opacity = '1';
+    labelEl.style.transform = 'translateX(0)';
+  });
+  el.addEventListener('mouseleave', function() {
+    labelEl.style.opacity = '0';
+    labelEl.style.transform = 'translateX(-4px)';
+  });
+
+  new mapboxgl.Marker({ element: el, anchor: 'left' })
+    .setLngLat(coords)
+    .addTo(zonaMap);
+}
+
+// Urbanización — Carrer Miquel Martí i Pol, 1 (marcador principal, dorado y más grande)
+addZonaMarker(URBANIZACION_COORDS, 'Vescomptat de Cabanyes', '#b8975a', 14);
+
+// Puntos de interés cercanos (coordenadas verificadas vía geocodificador; colores distintos al de la urbanización)
+addZonaMarker([3.101597, 41.847317], 'Platja de Sant Antoni', '#4a90b8'); // playa — azul
+addZonaMarker([2.985558, 41.806381], 'Golf Costa Brava', '#5a9e6f');      // golf — verde
+addZonaMarker([3.073334, 41.863045], 'Castell de Calonge', '#a0785a');    // castillo — terracota
+addZonaMarker([3.125093, 41.843594], 'Port de Palamós', '#4a90b8');       // puerto — azul
+
+let zonaMapFlown = false;
+function startZonaObserver() {
+  const zonaMapObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !zonaMapFlown) {
+        zonaMapFlown = true;
+        zonaMap.flyTo({
+          center: CALONGE_AREA,
+          zoom: 12.3,
+          pitch: 55,
+          bearing: -12,
+          speed: 0.55,
+          curve: 1.4,
+          essential: true
+        });
+        zonaMapObserver.disconnect();
+      }
+    });
+  }, { threshold: 0.4 });
+  zonaMapObserver.observe(document.getElementById('zona-map'));
+}
+</script>
 
 </body>
 </html>
