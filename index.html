@@ -205,7 +205,7 @@ nav.scrolled { background:rgba(26,26,24,0.99); }
 .btn-s:hover { background:rgba(184,151,90,0.1); }
 
 /* CONTACTO */
-.contacto-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; margin-top:56px; }
+.contacto-grid { display:grid; grid-template-columns:1fr; max-width:520px; margin:56px auto 0; }
 .form-group { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
 .form-label { font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:rgba(245,242,236,0.4); }
 .form-input, .form-select, .form-textarea { background:var(--dark); border:0.5px solid rgba(184,151,90,0.2); color:var(--light); font-family:var(--sans); font-size:14px; font-weight:300; padding:12px 16px; outline:none; transition:border-color 0.2s; }
@@ -391,13 +391,6 @@ footer { border-top:0.5px solid rgba(184,151,90,0.1); padding:32px 48px; display
       <button type="submit" class="btn-p" data-es="Enviar mensaje" data-en="Send message" data-de="Nachricht senden" data-fr="Envoyer le message" data-nl="Bericht verzenden">Send message</button>
       <p id="f-ok" style="display:none;margin-top:12px;font-size:13px;"></p>
     </form>
-    <div class="contact-info">
-      <!-- EDITA: email, teléfono y WhatsApp aquí abajo -->
-      <div><span class="contact-item-label">Email</span><span class="contact-item-val" style="cursor:default;">info@imisacb.es</span><span class="contact-item-sub" data-es="Respondemos en menos de 24h" data-en="We reply within 24h" data-de="Wir antworten innerhalb von 24 Std." data-fr="Nous répondons sous 24h" data-nl="Wij antwoorden binnen 24u">We reply within 24h</span></div>
-      <div><span class="contact-item-label" data-es="Teléfono" data-en="Phone" data-de="Telefon" data-fr="Téléphone" data-nl="Telefoon">Phone</span><span class="contact-item-val" style="cursor:default;">+34 972 65 04 46</span><span class="contact-item-sub" data-es="Lunes a viernes, 9h–19h" data-en="Mon–Fri, 9am–7pm" data-de="Mo.–Fr., 9–19 Uhr" data-fr="Lun-Ven, 9h-19h" data-nl="Ma-vr, 9u-19u">Mon–Fri, 9am–7pm</span></div>
-      <div><span class="contact-item-label" data-es="Ubicación" data-en="Location" data-de="Standort" data-fr="Emplacement" data-nl="Locatie">Location</span><a href="https://www.google.com/maps/place/IMISA+Costa+Brava/@41.8540208,3.0606404,115m/data=!3m1!1e3!4m6!3m5!1s0x12a4a2916df06e2f:0x3e4816f9cbbbbaa1!8m2!3d41.8541548!4d3.0611938!16s%2Fg%2F1tfcqf14?entry=ttu&g_ep=EgoyMDI2MDcxNS4wIKXMDSoASAFQAw%3D%3D" target="_blank" class="contact-item-val">Calonge, Girona</a><span class="contact-item-sub">Costa Brava, Catalunya</span></div>
-      <div><span class="contact-item-label" data-es="Web" data-en="Website" data-de="Webseite" data-fr="Site web" data-nl="Website">Website</span><a href="https://www.imisacostabrava.com/" target="_blank" class="contact-item-val">imisacostabrava.com</a></div>
-    </div>
   </div>
 </div>
 </div>
@@ -852,7 +845,7 @@ zonaMap.addControl(new mapboxgl.FullscreenControl());
 
 zonaMap.on('style.load', function() {
   zonaMap.setConfigProperty('basemap', 'lightPreset', 'day');
-  zonaMap.setConfigProperty('basemap', 'theme', 'monochrome');
+  zonaMap.setConfigProperty('basemap', 'theme', 'default');
   zonaMap.setConfigProperty('basemap', 'showRoadLabels', false);
   try { zonaMap.setFog({}); } catch (e) {}
   zonaMap.addSource('mapbox-dem', {
