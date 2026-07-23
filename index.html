@@ -377,6 +377,7 @@ footer { border-top:0.5px solid rgba(184,151,90,0.1); padding:32px 48px; display
   <div class="contacto-grid">
     <form onsubmit="sendForm(event)">
       <input type="hidden" name="_subject" value="Nuevo contacto — Vescomptat de Cabanyes">
+      <input type="hidden" id="f-plot-ref" name="Referencia interna (ficha)" value="">
       <div class="form-group"><label class="form-label" data-es="Nombre completo" data-en="Full name" data-de="Vollständiger Name" data-fr="Nom complet" data-nl="Volledige naam">Full name</label><input class="form-input" type="text" name="name" required></div>
       <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" name="email" required></div>
       <div class="form-group"><label class="form-label" data-es="País de residencia" data-en="Country of residence" data-de="Wohnsitzland" data-fr="Pays de résidence" data-nl="Land van verblijf">Country of residence</label><input class="form-input" type="text" name="country"></div>
@@ -429,19 +430,19 @@ const RENDER_FOTOS_B = ['data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYS
 // Numeración: id = número de marketing 1-16 (el que se muestra en la web).
 // ref = número de parcela real de IMISA (P-x), solo para uso interno/mapeo — nunca se muestra en la UI.
 const parcelas = [
-  {id:1,  ref:'P-1',  m2:7105.46, precio:500000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
-  {id:2,  ref:'P-2',  m2:7156.76, precio:370000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
-  {id:3,  ref:'P-3',  m2:7292.79, precio:350000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
-  {id:4,  ref:'P-4',  m2:8508.04, precio:365000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
-  {id:5,  ref:'P-8',  m2:7843.29, precio:500000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
-  {id:6,  ref:'P-9',  m2:6995.74, precio:360000, proyecto:'licencia', turnkey:1380000, desc_es:'Parcela con proyecto en marcha y construcción ya iniciada.', desc_en:'Plot with an approved project already under construction.', desc_de:'Grundstück mit genehmigtem Projekt, Bau bereits begonnen.', desc_fr:'Parcelle avec projet approuvé, construction déjà commencée.', desc_nl:'Perceel met goedgekeurd project, bouw reeds gestart.'},
-  {id:7,  ref:'P-12', m2:6813.71, precio:200000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
-  {id:8,  ref:'P-14', m2:6600.18, precio:290000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
-  {id:9,  ref:'P-15', m2:8591.44, precio:315000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
-  {id:10, ref:'P-16', m2:6973.59, precio:410000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
-  {id:11, ref:'P-17', m2:7266.59, precio:500000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
-  {id:12, ref:'P-18', m2:7128.32, precio:415000, proyecto:'basico', turnkey:1490000, desc_es:'Parcela con render arquitectónico ya realizado, pendiente de inicio de construcción.', desc_en:'Plot with an architectural render already completed, construction not yet started.', desc_de:'Grundstück mit bereits fertiggestelltem architektonischem Rendering, Bau noch nicht begonnen.', desc_fr:'Parcelle avec rendu architectural déjà réalisé, construction pas encore commencée.', desc_nl:'Perceel met reeds voltooide architecturale render, bouw nog niet gestart.'},
-  {id:13, ref:'P-19', m2:6713.63, precio:350000, proyecto:'basico', turnkey:1380000, desc_es:'Parcela con render arquitectónico ya realizado, pendiente de inicio de construcción.', desc_en:'Plot with an architectural render already completed, construction not yet started.', desc_de:'Grundstück mit bereits fertiggestelltem architektonischem Rendering, Bau noch nicht begonnen.', desc_fr:'Parcelle avec rendu architectural déjà réalisé, construction pas encore commencée.', desc_nl:'Perceel met reeds voltooide architecturale render, bouw nog niet gestart.'},
+  {id:1,  ref:'P-9',  m2:6995.74, precio:360000, proyecto:'licencia', turnkey:1380000, desc_es:'Parcela con proyecto en marcha y construcción ya iniciada.', desc_en:'Plot with an approved project already under construction.', desc_de:'Grundstück mit genehmigtem Projekt, Bau bereits begonnen.', desc_fr:'Parcelle avec projet approuvé, construction déjà commencée.', desc_nl:'Perceel met goedgekeurd project, bouw reeds gestart.'},
+  {id:2,  ref:'P-18', m2:7128.32, precio:415000, proyecto:'basico', turnkey:1490000, desc_es:'Parcela con render arquitectónico ya realizado, pendiente de inicio de construcción.', desc_en:'Plot with an architectural render already completed, construction not yet started.', desc_de:'Grundstück mit bereits fertiggestelltem architektonischem Rendering, Bau noch nicht begonnen.', desc_fr:'Parcelle avec rendu architectural déjà réalisé, construction pas encore commencée.', desc_nl:'Perceel met reeds voltooide architecturale render, bouw nog niet gestart.'},
+  {id:3,  ref:'P-19', m2:6713.63, precio:350000, proyecto:'basico', turnkey:1380000, desc_es:'Parcela con render arquitectónico ya realizado, pendiente de inicio de construcción.', desc_en:'Plot with an architectural render already completed, construction not yet started.', desc_de:'Grundstück mit bereits fertiggestelltem architektonischem Rendering, Bau noch nicht begonnen.', desc_fr:'Parcelle avec rendu architectural déjà réalisé, construction pas encore commencée.', desc_nl:'Perceel met reeds voltooide architecturale render, bouw nog niet gestart.'},
+  {id:4,  ref:'P-1',  m2:7105.46, precio:500000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
+  {id:5,  ref:'P-2',  m2:7156.76, precio:370000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
+  {id:6,  ref:'P-3',  m2:7292.79, precio:350000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
+  {id:7,  ref:'P-4',  m2:8508.04, precio:365000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
+  {id:8,  ref:'P-8',  m2:7843.29, precio:500000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
+  {id:9,  ref:'P-12', m2:6813.71, precio:200000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
+  {id:10, ref:'P-14', m2:6600.18, precio:290000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
+  {id:11, ref:'P-15', m2:8591.44, precio:315000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
+  {id:12, ref:'P-16', m2:6973.59, precio:410000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
+  {id:13, ref:'P-17', m2:7266.59, precio:500000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
   {id:14, ref:'P-20', m2:8508.91, precio:350000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
   {id:15, ref:'P-23', m2:6700.05, precio:290000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
   {id:16, ref:'P-24', m2:8234.82, precio:360000, proyecto:'sin',    desc_es:'Parcela libre para construir dentro de la urbanización, sin proyecto previo.', desc_en:'Free-to-build plot within the development, no prior project.', desc_de:'Freibauliches Grundstück innerhalb der Anlage, kein Vorprojekt.', desc_fr:'Parcelle libre de construction au sein de la résidence, sans projet préalable.', desc_nl:'Vrij te bebouwen perceel binnen het complex, zonder eerder project.'},
@@ -463,11 +464,8 @@ function projectNote(p) {
   return out;
 }
 
-// Pin positions on the map image (% from left, % from top)
-// EDITA: ajusta estos valores para afinar la posición del pin
-// Ordenar: licencia primero, basico segundo, sin proyecto al final
+// Orden por defecto: numérico por número de parcela (id de marketing)
 const ORDEN = {licencia:0, basico:1, sin:2};
-parcelas.sort((a,b) => ORDEN[a.proyecto] - ORDEN[b.proyecto]);
 
 // =============================================
 // ORDENAR (filtro arriba a la derecha)
@@ -479,7 +477,7 @@ function applySort(mode) {
   else if (mode === 'con-proyecto') {
     list = list.filter(p => p.proyecto !== 'sin');
     list.sort((a,b) => ORDEN[a.proyecto] - ORDEN[b.proyecto]);
-  } else list.sort((a,b) => ORDEN[a.proyecto] - ORDEN[b.proyecto]);
+  } else list.sort((a,b) => a.id - b.id);
   renderGrid(list);
 }
 
@@ -719,6 +717,10 @@ function sendForm(e) {
     return;
   }
 
+  const selectedId = document.getElementById('f-parcela').value;
+  const selectedPlot = parcelas.find(function(p) { return String(p.id) === String(selectedId); });
+  document.getElementById('f-plot-ref').value = selectedPlot ? selectedPlot.ref : '';
+
   const submitBtn = form.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
 
@@ -824,11 +826,11 @@ const URBANIZACION_COORDS = [3.058371, 41.848524];
 // Puntos del mapa: la urbanización primero (vista inicial), luego puntos de interés cercanos
 // (coordenadas verificadas vía geocodificador OpenStreetMap/Mapbox)
 const ZONA_POINTS = [
-  { label: 'Vescomptat de Cabanyes', color: '#b8975a', coords: URBANIZACION_COORDS, zoom: 15.2, pitch: 55, bearing: -20, big: true },
+  { label: 'Vescomptat de Cabanyes', color: '#b8975a', coords: URBANIZACION_COORDS, zoom: 14.15, pitch: 45, bearing: -20, big: true },
   { label: 'Platja de Sant Antoni', color: '#4a90b8', coords: [3.101597, 41.847317], zoom: 14.5, pitch: 50, bearing: 10 },
-  { label: 'Golf Costa Brava', color: '#5a9e6f', coords: [2.985558, 41.806381], zoom: 14.5, pitch: 50, bearing: 10 },
+  { label: 'Golf Costa Brava', color: '#5a9e6f', coords: [2.985558, 41.806381], zoom: 13.8, pitch: 50, bearing: 10 },
   { label: 'Castell de Calonge', color: '#a0785a', coords: [3.073334, 41.863045], zoom: 15, pitch: 50, bearing: 10 },
-  { label: 'Port de Palamós', color: '#4a90b8', coords: [3.125093, 41.843594], zoom: 14.5, pitch: 50, bearing: 10 }
+  { label: 'Port de Palamós', color: '#4a90b8', coords: [3.125093, 41.843594], zoom: 13.8, pitch: 50, bearing: 10 }
 ];
 
 const zonaMap = new mapboxgl.Map({
@@ -839,7 +841,11 @@ const zonaMap = new mapboxgl.Map({
   center: [1, 42.5], // Península ibérica / sur de Europa, no vista desde el espacio
   pitch: 0,
   cooperativeGestures: true,
-  attributionControl: false
+  attributionControl: false,
+  maxTileCacheSize: 500,
+  fadeDuration: 200,
+  antialias: true,
+  pixelRatio: Math.min(window.devicePixelRatio || 1, 2)
 });
 zonaMap.addControl(new mapboxgl.AttributionControl({ compact: true }));
 zonaMap.addControl(new mapboxgl.FullscreenControl());
@@ -890,8 +896,8 @@ function flyToZonaPoint(p) {
     zoom: p.zoom,
     pitch: p.pitch,
     bearing: p.bearing,
-    speed: 1.2,
-    curve: 1.3,
+    speed: 0.85,
+    curve: 1.4,
     essential: true
   });
 }
