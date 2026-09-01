@@ -226,7 +226,7 @@ nav.scrolled { background:rgba(26,26,24,0.99); }
 .badge-sold { background:var(--gold); color:var(--dark); border:0.5px solid var(--gold); font-weight:700; font-size:10px; letter-spacing:0.16em; box-shadow:0 2px 8px rgba(0,0,0,0.35); }
 .p-num { font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold); margin-bottom:4px; }
 .p-title { font-family:var(--sans); font-variant-numeric:tabular-nums; font-size:18px; font-weight:500; letter-spacing:0.01em; color:var(--white); margin-bottom:14px; }
-.p-specs { display:flex; gap:24px; margin-bottom:14px; }
+.p-specs { display:flex; flex-wrap:wrap; gap:12px 24px; margin-bottom:14px; }
 .p-spec-val { font-family:var(--sans); font-variant-numeric:tabular-nums; font-size:16px; font-weight:500; letter-spacing:0.01em; color:var(--gold-light); display:block; }
 .p-spec-key { font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(245,242,236,0.35); }
 .p-desc { font-size:12px; line-height:1.6; color:rgba(245,242,236,0.45); margin-bottom:14px; flex:1; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
@@ -611,7 +611,8 @@ function renderGrid(list) {
           '<p class="p-num">'+t({es:'Parcela',en:'Plot',de:'Grundstück',fr:'Parcelle',nl:'Perceel'})+' '+p.ref+'</p>' +
           '<p class="p-title">'+Math.floor(p.m2).toLocaleString(LOCALE[lang])+' m²</p>' +
           '<div class="p-specs">' +
-            '<div><span class="p-spec-val">'+p.precio.toLocaleString(LOCALE[lang])+'&euro;</span><span class="p-spec-key">'+t({es:'Precio',en:'Price',de:'Preis',fr:'Prix',nl:'Prijs'})+'</span></div>' +
+            '<div><span class="p-spec-val">'+p.precio.toLocaleString(LOCALE[lang])+'&euro;</span><span class="p-spec-key">'+t(p.turnkey ? {es:'Precio terreno',en:'Land price',de:'Grundstückspreis',fr:'Prix du terrain',nl:'Grondprijs'} : {es:'Precio',en:'Price',de:'Preis',fr:'Prix',nl:'Prijs'})+'</span></div>' +
+            (p.turnkey ? '<div><span class="p-spec-val" style="color:#8fba8f;">'+p.turnkey.toLocaleString(LOCALE[lang])+'&euro;</span><span class="p-spec-key">'+t({es:'Precio con proyecto',en:'Turnkey price',de:'Preis schlüsselfertig',fr:'Prix clé en main',nl:'Prijs sleutelklaar'})+'</span></div>' : '') +
             '<div><span class="p-spec-val">Sur</span><span class="p-spec-key">'+t({es:'Orientación',en:'Orientation',de:'Ausrichtung',fr:'Orientation',nl:'Oriëntatie'})+'</span></div>' +
           '</div>' +
           '<p class="p-desc">'+t({es:p.desc_es,en:p.desc_en,de:p.desc_de,fr:p.desc_fr,nl:p.desc_nl})+'</p>' +
