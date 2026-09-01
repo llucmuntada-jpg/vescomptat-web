@@ -164,6 +164,7 @@ nav.scrolled { background:rgba(26,26,24,0.99); }
   border-radius:2px;
 }
 .p-slide.map-slide { background-size:contain; background-color:#f0ede6; }
+.modal-photo.map-slide { background-size:contain; background-color:#f0ede6; }
 .p-btn {
   position:absolute;
   top:50%;
@@ -563,7 +564,7 @@ function setLang(l) {
   renderSelect();
 }
 
-const SOLD_BADGE = {es:'Vendida', en:'Sold', de:'Verkauft', fr:'Vendue', nl:'Verkocht', cls:'badge-sold'};
+const SOLD_BADGE = {es:'Reservada', en:'Reserved', de:'Reserviert', fr:'Réservée', nl:'Gereserveerd', cls:'badge-sold'};
 function badge(p) {
   const B = {
     licencia:{es:'Proyecto + Licencia', en:'Project + Permit', de:'Projekt + Baugenehmigung', fr:'Projet + Permis', nl:'Project + Vergunning', cls:'badge-green'},
@@ -633,7 +634,7 @@ function renderGrid(list) {
 
     fotos.forEach(function(f, i) {
       var s = document.createElement('div');
-      s.className = 'p-slide';
+      s.className = 'p-slide' + (f.tipo === 'plano' ? ' map-slide' : '');
       if (f.tipo === 'placeholder') {
         s.classList.add('p-slide-empty');
         s.textContent = t({es:'Fotos próximamente',en:'Photos coming soon',de:'Fotos folgen in Kürze',fr:'Photos à venir',nl:'Foto\'s volgen binnenkort'});
@@ -755,7 +756,7 @@ function openModal(id) {
   mTrack.style.width = (mTotal * 100) + '%';
   mFotos.forEach(function(f, i) {
     var s = document.createElement('div');
-    s.className = 'modal-photo';
+    s.className = 'modal-photo' + (f.tipo === 'plano' ? ' map-slide' : '');
     s.style.width = (100 / mTotal) + '%';
     s.style.flexShrink = '0';
     if (f.tipo === 'placeholder') {
