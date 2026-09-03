@@ -49,6 +49,7 @@ nav.scrolled { background:rgba(26,26,24,0.99); }
 .lang-toggle { display:flex; gap:4px; }
 .lang-btn { background:none; border:0.5px solid rgba(184,151,90,0.3); color:rgba(245,242,236,0.5); font-family:var(--sans); font-size:11px; letter-spacing:0.1em; padding:4px 10px; cursor:pointer; transition:all 0.2s; border-radius:2px; }
 .lang-btn.active { background:var(--gold); border-color:var(--gold); color:var(--dark); font-weight:500; }
+.nav-toggle { display:none; background:none; border:none; color:var(--gold-light); font-size:22px; cursor:pointer; padding:2px 6px; line-height:1; }
 
 /* HERO */
 #hero { height:580px; margin-top:64px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
@@ -91,6 +92,8 @@ nav.scrolled { background:rgba(26,26,24,0.99); }
    PARCELAS — tarjetas horizontales
    ================================ */
 .parcelas-header { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:40px; }
+
+.parcelas-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
 
 /* Cada tarjeta: fila horizontal */
 .parcela-card {
@@ -290,15 +293,44 @@ footer { border-top:0.5px solid rgba(184,151,90,0.1); padding:32px 48px; display
 @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
 
 @media(max-width:900px){
-  nav{padding:16px 20px;} .nav-links{display:none;}
+  nav{padding:14px 20px;}
+  .nav-toggle{display:block;}
+  .nav-links{
+    display:none; position:absolute; top:100%; left:0; right:0;
+    flex-direction:column; gap:0; list-style:none;
+    background:rgba(26,26,24,0.99); border-top:0.5px solid rgba(184,151,90,0.15);
+    box-shadow:0 16px 24px rgba(0,0,0,0.35);
+  }
+  .nav-links.open{display:flex;}
+  .nav-links li{width:100%;}
+  .nav-links a{display:block;padding:16px 20px;font-size:14px;border-bottom:0.5px solid rgba(184,151,90,0.08);}
+
+  #hero{height:auto;min-height:580px;padding:96px 0 48px;}
+  .hero-content > div{padding:24px 20px !important;}
+  .hero-stats{gap:24px;margin-bottom:40px;flex-wrap:wrap;}
+  .hero-stat-num{font-size:22px;}
+
   .sec{padding:64px 20px;}
   .zona-grid,.contacto-grid{grid-template-columns:1fr;gap:48px;}
+  .parcelas-grid{grid-template-columns:1fr;gap:32px;}
   .parcela-card{grid-template-columns:1fr;height:auto;}
   .p-slider{width:100%;height:220px;}
   .p-slide{width:100%;height:220px;}
-  .modal-photos{grid-template-columns:1fr;height:auto;}
-  .modal-photo{height:160px;}
-  footer{padding:24px 20px;flex-direction:column;gap:8px;text-align:center;}
+
+  .parcelas-header{flex-direction:column;align-items:flex-start;gap:20px;}
+  .parcelas-header > div:last-child{align-items:flex-start !important;width:100%;}
+  .parcelas-header p{text-align:left !important;max-width:none !important;}
+  .parcelas-header select{width:100% !important;}
+
+  .modal-photos{height:220px;}
+  .modal-photo{height:220px;}
+  .modal-hdr{padding:20px;}
+  .modal-body{padding:20px;}
+  .modal-specs{gap:14px;padding:16px;}
+
+  footer{padding:24px 20px;}
+  footer > div{flex-direction:column;gap:8px;text-align:center;}
+  footer > div > span{flex-direction:column;gap:6px;}
 }
 
   
@@ -309,7 +341,8 @@ footer { border-top:0.5px solid rgba(184,151,90,0.1); padding:32px 48px; display
 <!-- NAV -->
 <nav id="navbar">
   <a href="#hero" class="nav-logo">Riera de Cabanyes</a>
-  <ul class="nav-links">
+  <button class="nav-toggle" id="nav-toggle" onclick="toggleNavMenu()" aria-label="Menu" aria-expanded="false">&#9776;</button>
+  <ul class="nav-links" id="nav-links">
     <li><a href="#zona" data-es="La Zona" data-en="The Area" data-de="Die Lage" data-fr="Le Secteur" data-nl="De Omgeving">The Area</a></li>
     <li><a href="#parcelas" data-es="Parcelas" data-en="Plots" data-de="Grundstücke" data-fr="Parcelles" data-nl="Percelen">Plots</a></li>
     <li><a href="#contacto" data-es="Contacto" data-en="Contact" data-de="Kontakt" data-fr="Contact" data-nl="Contact">Contact</a></li>
@@ -324,7 +357,7 @@ footer { border-top:0.5px solid rgba(184,151,90,0.1); padding:32px 48px; display
 </nav>
 
 <!-- HERO -->
-<section id="hero" style="padding:0;max-width:none;">
+<section id="hero" style="max-width:none;">
   <div class="hero-bg" id="hero-bg"><div class="hero-overlay"></div></div>
   <div class="hero-content">
     <div style="background:rgba(26,26,24,0.28);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);padding:32px 48px;border-radius:2px;">
@@ -406,7 +439,7 @@ footer { border-top:0.5px solid rgba(184,151,90,0.1); padding:32px 48px; display
       </select>
     </div>
   </div>
-  <div id="grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;"></div>
+  <div id="grid" class="parcelas-grid"></div>
 </div>
 </div>
 
@@ -993,10 +1026,23 @@ function scrollToSection(id) {
   window.scrollTo({ top: top, behavior: 'smooth' });
 }
 
+// Menú móvil (hamburguesa)
+function toggleNavMenu() {
+  const links = document.getElementById('nav-links');
+  const btn = document.getElementById('nav-toggle');
+  const open = links.classList.toggle('open');
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+function closeNavMenu() {
+  document.getElementById('nav-links').classList.remove('open');
+  document.getElementById('nav-toggle').setAttribute('aria-expanded', 'false');
+}
+
 // Interceptar todos los enlaces internos #hash
 document.querySelectorAll('a[href^="#"]').forEach(function(link) {
   link.addEventListener('click', function(e) {
     const id = this.getAttribute('href').slice(1);
+    closeNavMenu();
     if (!id || !document.getElementById(id)) return;
     e.preventDefault();
     scrollToSection(id);
