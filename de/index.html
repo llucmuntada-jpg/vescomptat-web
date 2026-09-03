@@ -670,22 +670,23 @@ function renderGrid(list) {
     const track = document.getElementById('track-'+p.id);
     const dotsEl = document.getElementById('dots-'+p.id);
     const fotos = getFotos(p);
+    const realTotal = fotos.length;
+    sliderTotal[p.id] = realTotal;
 
-    fotos.forEach(function(f, i) {
+    // Slides reales — con clones head/tail para bucle infinito (igual que el modal)
+    var realSlides = fotos.map(function(f) {
       var s = document.createElement('div');
       s.className = 'p-slide' + (f.tipo === 'plano' ? ' map-slide' : '');
       if (f.tipo === 'placeholder') {
         s.classList.add('p-slide-empty');
         s.textContent = t({es:'Fotos próximamente',en:'Photos coming soon',de:'Fotos folgen in Kürze',fr:'Photos à venir',nl:'Foto\'s volgen binnenkort'});
-        track.appendChild(s);
-        return;
+        return s;
       }
       var imgUrl = f.tipo==='video' ? f.poster : f.url;
       var altText = t({es:'Parcela',en:'Plot',de:'Grundstück',fr:'Parcelle',nl:'Perceel'})+' '+p.ref+' — '+fotoTagLabel(f.tipo)+' — Riera de Cabanyes, Calonge, Costa Brava';
       s.setAttribute('role','img');
       s.setAttribute('aria-label', altText);
-      if (i === 0) { s.style.backgroundImage = "url('"+imgUrl+"')"; }
-      else { s.dataset.bg = imgUrl; }
+      s.dataset.bg = imgUrl;
       if (f.pos) s.style.backgroundPosition = f.pos;
       var srImg = document.createElement('img');
       srImg.className = 'sr-only';
@@ -705,26 +706,36 @@ function renderGrid(list) {
         tag.textContent = fotoTagLabel(f.tipo);
         s.appendChild(tag);
       }
-      track.appendChild(s);
+      return s;
     });
 
-    // Set track and slide widths based on total
-    var total = track.children.length;
-    track.style.width = (total * 100) + '%';
-    Array.from(track.children).forEach(function(s){ s.style.width = (100/total) + '%'; });
+    var domTotal = realTotal > 1 ? realTotal + 2 : realTotal;
+    if (realTotal > 1) track.appendChild(realSlides[realTotal - 1].cloneNode(true));
+    realSlides.forEach(function(s) { track.appendChild(s); });
+    if (realTotal > 1) track.appendChild(realSlides[0].cloneNode(true));
+
+    // Set track and slide widths based on total (incluyendo clones)
+    track.style.width = (domTotal * 100) + '%';
+    Array.from(track.children).forEach(function(s){ s.style.width = (100/domTotal) + '%'; });
     // Rebuild dots
     dotsEl.innerHTML = '';
-    for (var di = 0; di < dotCount(total); di++) {
+    for (var di = 0; di < dotCount(realTotal); di++) {
       var dot = document.createElement('div');
       dot.className = 'p-dot' + (di===0?' on':'');
-      (function(dotIdx){ dot.onclick = function(e){ e.stopPropagation(); goTo(p.id, indexForDot(dotIdx, total)); }; })(di);
+      (function(dotIdx){ dot.onclick = function(e){ e.stopPropagation(); goTo(p.id, indexForDot(dotIdx, realTotal)); }; })(di);
       dotsEl.appendChild(dot);
     }
+    goToDom(p.id, realTotal > 1 ? 1 : 0, false);
   });
 }
 
-// Slider
-const sliderIdx = {};
+// Slider — bucle infinito igual que el carrusel de fotos del modal: al pasar del
+// ultimo se desliza hacia un clon de la primera foto y, al terminar la transicion,
+// salta sin animacion a la foto real (mismo contenido visual), en vez de recorrer
+// todas las fotos hacia atras.
+const sliderIdx = {};    // indice DOM actual por tarjeta (id -> domIdx)
+const sliderTotal = {};  // numero real de fotos por tarjeta (id -> total)
+const sliderLocked = {}; // bloqueo mientras se hace el salto invisible
 const MAX_DOTS = 4;
 function applyLazyBg(el) {
   if (!el || !el.dataset) return;
@@ -751,32 +762,60 @@ function indexForDot(dotIdx, total) {
 }
 
 function move(id, dir) {
-  const track = document.getElementById('track-'+id);
-  if (!track) return;
-  const total = track.children.length;
-  const cur = sliderIdx[id] || 0;
-  const next = (cur + dir + total) % total;
-  goTo(id, next);
+  if (sliderLocked[id]) return;
+  goToDom(id, (sliderIdx[id] || 0) + dir, true);
 }
 
 function goTo(id, idx) {
+  // idx aqui es el indice REAL (0..total-1), usado por los puntos (dots)
+  const total = sliderTotal[id] || 1;
+  idx = ((idx % total) + total) % total;
+  const offset = total > 1 ? 1 : 0;
+  goToDom(id, idx + offset, true);
+}
+
+function goToDom(id, domIdx, animate) {
   const track = document.getElementById('track-'+id);
   if (!track) return;
-  const total = track.children.length;
-  idx = ((idx % total) + total) % total;
-  sliderIdx[id] = idx;
-  // Each slide is 100% of the container. Track is total*100% wide.
-  // translateX moves by multiples of (100/total)% of the track width = 100% of container
-  track.style.transform = 'translateX(calc(-' + idx + ' * (100% / ' + total + ')))';
-  applyLazyBg(track.children[idx]);
-  applyLazyBg(track.children[(idx+1)%total]);
-  applyLazyBg(track.children[(idx-1+total)%total]);
+  const total = sliderTotal[id] || track.children.length;
+  const domTotal = total > 1 ? total + 2 : total;
+  if (!domTotal) return;
+  domIdx = ((domIdx % domTotal) + domTotal) % domTotal;
+  sliderIdx[id] = domIdx;
+  track.style.transition = animate ? '' : 'none';
+  track.style.transform = 'translateX(calc(-' + domIdx + ' * (100% / ' + domTotal + ')))';
+  if (!animate) { void track.offsetHeight; track.style.transition = ''; }
+
+  applyLazyBg(track.children[domIdx]);
+  applyLazyBg(track.children[(domIdx+1)%domTotal]);
+  applyLazyBg(track.children[(domIdx-1+domTotal)%domTotal]);
+
+  const offset = total > 1 ? 1 : 0;
+  const realIdx = ((domIdx - offset) % total + total) % total;
   const slider = track.closest('.p-slider');
   if (slider) {
-    var activeDot = dotForIndex(idx, total);
+    var activeDot = dotForIndex(realIdx, total);
     slider.querySelectorAll('.p-dot').forEach(function(d, i) {
       d.classList.toggle('on', i === activeDot);
     });
+  }
+
+  if (animate && total > 1 && (domIdx === 0 || domIdx === total + 1)) {
+    sliderLocked[id] = true;
+    var snapped = false;
+    var doSnap = function() {
+      if (snapped) return;
+      snapped = true;
+      track.removeEventListener('transitionend', onEnd);
+      goToDom(id, domIdx === 0 ? total : 1, false);
+      sliderLocked[id] = false;
+    };
+    var onEnd = function(e) {
+      if (e.target !== track || e.propertyName !== 'transform') return;
+      doSnap();
+    };
+    track.addEventListener('transitionend', onEnd);
+    setTimeout(doSnap, 450); // respaldo por si transitionend no llega a disparar
   }
 }
 
